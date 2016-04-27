@@ -1,0 +1,6 @@
+/classes
+/.exploded
+*.war
+modules
+.README.md.html
+blog-04-16-2016.xml
