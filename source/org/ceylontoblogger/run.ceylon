@@ -22,16 +22,14 @@ SAXBuilder jdomBuilder = SAXBuilder();
 
 String removeHtmlBreakFromTextarea(String rawHtml) =>
 	"".join(
-		RegexSplitIterable(rawHtml, "</?(?:textarea|span)[^>]*>")
+		RegexSplitIterable(rawHtml, "</?(?:textarea)[^>]*>")
 			.indexed
 			.map((indexAndSplited) => let (index->splited = indexAndSplited)
 					if (index.even) 
-					then splited 
-					else splited.replace("<br />", "\n")
-								.replace("<", "&lt;")
-								.replace(">", "&gt;")
-								.replace("&lt;/textarea&gt;", "</textarea>")
-								.replace("&lt;/span&gt;", "</span>")
+					then splited.full 
+					else splited.element.replace("<br />", "\n")
+										.replace("<", "&lt;")
+										.replace(">", "&gt;") + splited.separator
 		)
 	);
 
@@ -52,18 +50,18 @@ shared void run() {
 		)
 	);
 
-	{BlogArticle*} blogArticles = xmlBlogEntries.map((Element e) => 
+	{HtmlBlogArticle*} blogArticles = xmlBlogEntries.map((Element e) => 
 		let(title = e.getChild("title", ns).\ivalue)
-		let(nudeHtml = e.getChild("content", ns).\ivalue)
-	    let(rawHtml = "<!DOCTYPE html><html><head><title>``title``</title></head><body>``nudeHtml``</body></html>")
+		let(bloggerHtml = e.getChild("content", ns).\ivalue)
+	    let(rawHtml = "<!DOCTYPE html><html><head><title>``title``</title></head><body>``bloggerHtml``</body></html>")
 	    let(html = removeHtmlBreakFromTextarea(rawHtml))
-		BlogArticle{
+		HtmlBlogArticle{
 			htmlContent = html;
 			title = title;
 		}
 	);	
 	
-	blogArticles.each(print);
+	blogArticles.each(AsciidocBlogArticle);
 	
 }
 

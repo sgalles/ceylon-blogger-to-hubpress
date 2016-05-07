@@ -10,11 +10,10 @@ import org.w3c.dom {
 import org.w3c.tidy {
 	Tidy
 }
-class BlogArticle(shared String htmlContent, shared String title) {
-	print("Processing ``title``");
+class HtmlBlogArticle(shared String htmlContent, shared String title) {
 	Tidy tidy = Tidy();
 	value writer = StringWriter();
-	shared Document dom = tidy.parseDOM(StringReader(htmlContent.replace("&lt;br /&gt;", "@@@br@@@")), writer);
+	shared Document dom = tidy.parseDOM(StringReader(htmlContent), writer);
 	
 	string => "BlogArticle:``title``:\nhtml=``htmlContent``\ntidy=``writer``";
 	
