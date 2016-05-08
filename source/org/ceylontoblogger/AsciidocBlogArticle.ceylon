@@ -14,24 +14,30 @@ class IterableNodeList(NodeList nodeList) satisfies {Node*}{
 		variable Integer i = 0;
 		shared actual Node|Finished next() => if(i < nodeList.length) then nodeList.item(i++) else finished; 
 	};
-	
+}
 
 
+class Step{
+	String name;
+	shared new start{name="start";}
+	shared new end{name="end";}
+	string => name;
 }
 
 class IterableNode(Node node) satisfies {Node*}{
 	value iterableNodeList = IterableNodeList(node.childNodes);
 	shared actual Iterator<Node> iterator() => iterableNodeList.iterator();
 	
-	shared void recurse(void recursing(Node node, String[] path)){
+	shared void recurse(void recursing(Node node, String[] path, Step step)){
 		internalRecurse(node, [], recursing);
 	}
 	
-	void internalRecurse(Node currentNode, String[] currentPath, void recursing(Node node, String[] path)){
-		recursing(currentNode, currentPath);
+	void internalRecurse(Node currentNode, String[] currentPath, void recursing(Node node, String[] path, Step step)){
+		recursing(currentNode, currentPath, Step.start);
 		for(childNode in IterableNode(currentNode)){
 			internalRecurse(childNode, currentPath.withTrailing(childNode.nodeName), recursing);
 		}
+		recursing(currentNode, currentPath, Step.end);
 	}
 }
 
@@ -84,8 +90,8 @@ class AsciidocBlogArticle {
 		print("\n*************RACINE************");
 		
 		print(racine.nodeName);
-		IterableNode(racine).recurse(void (Node node, String[] path) {
-			print("``path``:``node.nodeValue``@``MapNode(node)``");
+		IterableNode(racine).recurse(void (Node node, String[] path, Step step) {
+			print("``path``:``step``:``node.nodeValue``@``MapNode(node)``");
 		});
 	}
 	

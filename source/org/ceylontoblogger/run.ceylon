@@ -41,13 +41,16 @@ shared void run() {
 	Document jdomDocument = jdomBuilder.build(xmlSource);
 	Element rss = jdomDocument.rootElement;
 	Namespace ns = Namespace.getNamespace("http://www.w3.org/2005/Atom");
+	Namespace nsApp = Namespace.getNamespace("app","http://purl.org/atom/app#");
+	
 	
 	CeylonList<Content> rssContents = CeylonList(rss.content);
 	
 	{Element*} xmlBlogEntries = rssContents.narrow<Element>().filter((Element e) 
-		=> CeylonList(e.getChildren("category", ns)).any((Element category) 
-			=> category.getAttribute("term").\ivalue.endsWith("#post")
-		)
+		=>  let( isBlog = CeylonList(e.getChildren("category", ns)).any((Element category) 
+					=> category.getAttribute("term").\ivalue.endsWith("#post")))
+			let (isDraft = e.getChild("control", nsApp) exists)
+			isBlog && !isDraft
 	);
 
 	{HtmlBlogArticle*} blogArticles = xmlBlogEntries.map((Element e) => 
