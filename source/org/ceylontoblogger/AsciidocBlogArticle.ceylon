@@ -17,7 +17,7 @@ class IterableNodeList(NodeList nodeList) satisfies {Node*}{
 }
 
 
-class Step{
+class Step of start|end{
 	String name;
 	shared new start{name="start";}
 	shared new end{name="end";}
@@ -28,16 +28,16 @@ class IterableNode(Node node) satisfies {Node*}{
 	value iterableNodeList = IterableNodeList(node.childNodes);
 	shared actual Iterator<Node> iterator() => iterableNodeList.iterator();
 	
-	shared void recurse(void recursing(Node node, String[] path, Step step)){
-		internalRecurse(node, [], recursing);
+	shared void recurse(void recursing([Node+] path, Step step)){
+		internalRecurse([node], recursing);
 	}
 	
-	void internalRecurse(Node currentNode, String[] currentPath, void recursing(Node node, String[] path, Step step)){
-		recursing(currentNode, currentPath, Step.start);
-		for(childNode in IterableNode(currentNode)){
-			internalRecurse(childNode, currentPath.withTrailing(childNode.nodeName), recursing);
+	void internalRecurse([Node+] path, void recursing([Node+] path, Step step)){
+		recursing(path, Step.start);
+		for(childNode in IterableNode(path.last)){
+			internalRecurse(path.withTrailing(childNode), recursing);
 		}
-		recursing(currentNode, currentPath, Step.end);
+		recursing(path, Step.end);
 	}
 }
 
@@ -85,12 +85,12 @@ class AsciidocBlogArticle {
 		document = htmlArticle.dom;
 		value racine = document.documentElement;
 		
-		IterableNode(racine).recurse(void (Node node, String[] path, Step step) {
-			print("``path``:``step``:``node.nodeValue``@``MapNode(node)``");
+		IterableNode(racine).recurse(void ([Node+] path, Step step) {
+			print("``path.map(Node.nodeName)``:``step``:``path.last.nodeValue``@``MapNode(path.last)``");
 		});
 	}
 	
-	shared void recurse(void recursing(Node node, String[] path, Step step)){
+	shared void recurse(void recursing([Node+] path, Step step)){
 		value root = document.documentElement;
 		IterableNode(root).recurse(recursing);
 	}

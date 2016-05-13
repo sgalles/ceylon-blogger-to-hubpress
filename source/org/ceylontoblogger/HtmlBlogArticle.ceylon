@@ -18,14 +18,14 @@ class HtmlBlogArticle(shared String htmlContent, shared String title, shared Str
 	
 	string => "BlogArticle:``title``:``published``\nhtml=``htmlContent``\ntidy=``writer``";
 	
-	shared void recurse(void recursing(Node node, String[] path, Step step)){
+	shared void recurse(void recursing([Node+] path, Step step)){
 		value root = dom.documentElement;
 		IterableNode(root).recurse(recursing);
 	}
 	
-	shared void printTree() => recurse(void (Node node, String[] path, Step step){
-			print("``path``:``step``:``node.nodeValue``@``MapNode(node)``");
-	});
+	shared void printTree() => recurse(void ([Node+] path, Step step) {
+			print("``path.map(Node.nodeName)``:``step``:``path.last.nodeValue``@``MapNode(path.last)``");
+		});
 	
 	
 }

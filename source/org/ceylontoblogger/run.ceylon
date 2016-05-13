@@ -74,7 +74,11 @@ shared void run() {
 	blog.printTree();
 	
 	HtmlToAsciidocTransformer transformer = HtmlToAsciidocTransformer();
-	blog.recurse(transformer.recursing);
+	try {
+		blog.recurse(transformer.recursing);
+	}catch(e){
+		e.printStackTrace();
+	}
 	print("##########################");
 	print(transformer);
 }
