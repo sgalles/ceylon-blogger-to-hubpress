@@ -8,6 +8,7 @@ module org.ceylontoblogger "1.0.0" {
 	import javax.xml "8";
 	import ceylon.regex "1.2.2";
 	import ceylon.test "1.2.2";
+	import ceylon.collection "1.2.2";
 	
 	
 }

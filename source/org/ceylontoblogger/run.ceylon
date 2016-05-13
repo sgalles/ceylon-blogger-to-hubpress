@@ -15,6 +15,10 @@ import org.jdom2 {
 import org.jdom2.input {
 	SAXBuilder
 }
+import org.w3c.dom {
+
+	Node
+}
 
 String xmlSource = "blog-04-16-2016.xml";
 SAXBuilder jdomBuilder = SAXBuilder();
@@ -55,16 +59,23 @@ shared void run() {
 
 	{HtmlBlogArticle*} blogArticles = xmlBlogEntries.map((Element e) => 
 		let(title = e.getChild("title", ns).\ivalue)
+		let(published = e.getChild("published", ns).\ivalue)
 		let(bloggerHtml = e.getChild("content", ns).\ivalue)
 	    let(rawHtml = "<!DOCTYPE html><html><head><title>``title``</title></head><body>``bloggerHtml``</body></html>")
 	    let(html = removeHtmlBreakFromTextarea(rawHtml))
 		HtmlBlogArticle{
 			htmlContent = html;
 			title = title;
+			published = published.split('T'.equals).first;
 		}
 	);	
 	
-	blogArticles.each(AsciidocBlogArticle);
+	assert(exists blog = blogArticles.getFromFirst(1));
+	blog.printTree();
 	
+	HtmlToAsciidocTransformer transformer = HtmlToAsciidocTransformer();
+	blog.recurse(transformer.recursing);
+	print("##########################");
+	print(transformer);
 }
 

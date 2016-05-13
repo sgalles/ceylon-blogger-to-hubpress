@@ -80,19 +80,19 @@ class MapNode(Node node) satisfies Map<String,String>{
 }
 
 class AsciidocBlogArticle {
-	
+	Document document;
 	shared new (HtmlBlogArticle htmlArticle){
-		Document document = htmlArticle.dom;
+		document = htmlArticle.dom;
 		value racine = document.documentElement;
 		
-		//Affichage de l'élément racine
-		
-		print("\n*************RACINE************");
-		
-		print(racine.nodeName);
 		IterableNode(racine).recurse(void (Node node, String[] path, Step step) {
 			print("``path``:``step``:``node.nodeValue``@``MapNode(node)``");
 		});
+	}
+	
+	shared void recurse(void recursing(Node node, String[] path, Step step)){
+		value root = document.documentElement;
+		IterableNode(root).recurse(recursing);
 	}
 	
 	
