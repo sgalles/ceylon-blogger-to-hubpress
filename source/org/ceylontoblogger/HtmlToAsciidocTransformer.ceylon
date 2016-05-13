@@ -1,13 +1,18 @@
 import ceylon.collection {
 	HashMap
 }
-
-import org.w3c.dom {
-	Node
+import ceylon.language {
+	null
 }
 
-import org.ceylontoblogger{
-	Step {start,end}
+import org.ceylontoblogger {
+	Step {
+		start,
+		end
+	}
+}
+import org.w3c.dom {
+	Node
 }
 
 String? ignore(Node n, Step s) => null;
@@ -32,10 +37,16 @@ class HtmlToAsciidocTransformer() {
 			=>( if(s == start) then "``n.nodeValue``" else null)), 
 		
 		"br" -> ((Node n, Step s) 
-			=> " +\n"),
+			=> " \n\n"),
 		
 		"i" -> ((Node n, Step s) 
-			=> "_")
+			=> "_"),
+		
+		"span" -> ((Node n, Step s)
+			=>( if(s == start) then 
+					if(exists style = MapNode(n).get("style")) then " " else nothing
+				else null)
+			  )
 		
 	
 	};
