@@ -37,16 +37,22 @@ class HtmlToAsciidocTransformer() {
 			=>( if(s == start) then "``n.nodeValue``" else null)), 
 		
 		"br" -> ((Node n, Step s) 
-			=> " \n\n"),
+			=>( if(s == start) then " \n\n" else null)), 
 		
-		"i" -> ((Node n, Step s) 
-			=> "_"),
+		"i" -> ((Node n, Step s) => "_"),
 		
 		"span" -> ((Node n, Step s)
 			=>( if(s == start) then 
 					if(exists style = MapNode(n).get("style")) then " " else nothing
 				else null)
-			  )
+			  ),
+			 
+		"a" ->	((Node n, Step s) => let(href = MapNode(n).get("href") else nothing) 
+				 	(switch(s) 
+				 		case(start) "link:``href``["
+				 		case(end) "]"
+			 		)
+			 	)   
 		
 	
 	};

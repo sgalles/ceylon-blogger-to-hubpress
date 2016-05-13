@@ -70,7 +70,7 @@ shared void run() {
 		}
 	);	
 	
-	assert(exists blog = blogArticles.getFromFirst(1));
+	assert(exists blog = blogArticles.getFromFirst(2));
 	blog.printTree();
 	
 	HtmlToAsciidocTransformer transformer = HtmlToAsciidocTransformer();
