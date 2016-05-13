@@ -52,9 +52,16 @@ class HtmlToAsciidocTransformer() {
 				 		case(start) "link:``href``["
 				 		case(end) "]"
 			 		)
-			 	)   
-		
-	
+			 	),
+			 	   
+		"u" -> ignore,
+			 	   
+		"ul" -> ((Node n, Step s) => "\n"),	 	   
+			 	   
+		"li" -> ((Node n, Step s) => switch(s) 
+					case(start) "* " 
+					case(end) "\n"
+				)
 	};
 	
 	string => sb.string;
