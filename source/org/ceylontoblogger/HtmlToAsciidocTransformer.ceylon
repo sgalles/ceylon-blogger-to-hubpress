@@ -20,7 +20,7 @@ class HtmlToAsciidocTransformer() {
 	
 	String none = "";
 	
-	Map<String, Null|String|String(Node)|[<Step-><String(Node)|String>>+]> handlers = HashMap{
+	Map<String, String|String(Node)|[<Step-><String(Node)|String>>+]> handlers = HashMap{
 		"html" -> none,
 		"head" -> none,
 		"meta" -> none,
@@ -32,24 +32,19 @@ class HtmlToAsciidocTransformer() {
 		],
 			
 		"#text" -> [
-			start -> ( (Node n)=>"``n.nodeValue``" )
+			start -> ( (Node n) => n.nodeValue )
 		],	
 			
 		"br" -> [
 			start -> "\n\n"
 		],
 			
-		"i" -> "_",
+		"i" -> [
+			start -> "_",
+			end -> "_ "
+		],
 			
-		"span" -> [
-			start -> ( (Node n){
-						if(exists style = NodeAttributes(n).get("style")) {
-							return " ";
-						} else {
-							return "";
-						}
-					})
-		],			
+		"span" -> "",			
 
 		"a" -> (
 					let (link = ( 
@@ -65,11 +60,11 @@ class HtmlToAsciidocTransformer() {
 					]
 				),
 					
-		"u" -> null,
+		"u" -> none,
 		"ul" -> "\n",	
 		
 		"li" -> [
-			start -> "\n* " 
+			start -> ( (Node n)=> if(IterableNode(n).any((child)=>child.nodeName == "#text")) then "\n* " else "") 
 		],
 		"textarea" -> [
 			start -> ( (Node n) {
@@ -90,7 +85,7 @@ class HtmlToAsciidocTransformer() {
 							throw Exception("textarea class does not have a class :``n.nodeValue``" );
 						}
 					}),
-			end -> "----\n"		
+			end -> "\n----\n"		
 		],
 		
 		"pre" -> "\n\n....\n",
@@ -98,7 +93,9 @@ class HtmlToAsciidocTransformer() {
 		"img" ->  [
 			start -> ( (Node n) => let(src = NodeAttributes(n).get("src") else nothing) "image::``src``[" ),
 			end -> "]\n"
-		]
+		],
+			
+		"b" -> "*"	
 
 	};
 	
