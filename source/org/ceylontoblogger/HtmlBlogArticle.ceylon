@@ -24,7 +24,7 @@ class HtmlBlogArticle(shared String htmlContent, shared String title, shared Str
 	}
 	
 	shared void printTree() => recurse(void ([Node+] path, Step step) {
-			print("``path.map(Node.nodeName)``:``step``:``path.last.nodeValue``@``MapNode(path.last)``");
+			print("``path.map(Node.nodeName)``:``step``:``path.last.nodeValue``@``NodeAttributes(path.last)``");
 		});
 	
 	

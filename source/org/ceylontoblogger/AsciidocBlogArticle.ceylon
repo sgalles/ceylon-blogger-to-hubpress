@@ -41,7 +41,7 @@ class IterableNode(Node node) satisfies {Node*}{
 	}
 }
 
-class MapNode(Node node) satisfies Map<String,String>{
+class NodeAttributes(Node node) satisfies Map<String,String>{
 	
 	NamedNodeMap? attributes = node.attributes;
 	
@@ -68,7 +68,7 @@ class MapNode(Node node) satisfies Map<String,String>{
 	shared actual Integer hash => node.hash;
 	
 	shared actual Boolean equals(Object that) {
-		if (is MapNode that) {
+		if (is NodeAttributes that) {
 			return node==that.node;
 		}
 		else {
@@ -86,7 +86,7 @@ class AsciidocBlogArticle {
 		value racine = document.documentElement;
 		
 		IterableNode(racine).recurse(void ([Node+] path, Step step) {
-			print("``path.map(Node.nodeName)``:``step``:``path.last.nodeValue``@``MapNode(path.last)``");
+			print("``path.map(Node.nodeName)``:``step``:``path.last.nodeValue``@``NodeAttributes(path.last)``");
 		});
 	}
 	
