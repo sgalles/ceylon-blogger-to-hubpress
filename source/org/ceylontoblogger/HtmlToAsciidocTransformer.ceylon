@@ -42,7 +42,13 @@ class HtmlToAsciidocTransformer() {
 		"i" -> "_",
 			
 		"span" -> [
-			start -> ( (Node n)=>if(exists style = MapNode(n).get("style")) then " " else nothing )
+			start -> ( (Node n){
+						if(exists style = MapNode(n).get("style")) {
+							return " ";
+						} else {
+							return "";
+						}
+					})
 		],
 		"a" ->  [
 			start -> ( (Node n) => let(href = MapNode(n).get("href") else nothing) "link:``href``[" ),
@@ -52,24 +58,31 @@ class HtmlToAsciidocTransformer() {
 		"ul" -> "\n",	
 		
 		"li" -> [
-			start -> "* " ,
-			end -> "\n"
+			start -> "\n* " 
 		],
 		"textarea" -> [
 			start -> ( (Node n) {
 						if(exists clazz = MapNode(n).get("class")){
 							value syntaxIs = clazz.startsWith;
+							String syntax;
 							if(syntaxIs("xml")){
-								return "\n\n[source,xml]\n----\n";
+								syntax = "xml";
+							}else if(syntaxIs("ruby")){
+								syntax = "ruby";
+							}else  if(syntaxIs("bash")){
+								syntax = "bash";
 							}else{
 								throw Exception("Unknown textarea class : ``clazz``" );
 							}
+							return "\n\n[source,``syntax``]\n----\n";
 						}else{
 							throw Exception("textarea class does not have a class :``n.nodeValue``" );
 						}
 					}),
 			end -> "----\n"		
-		]
+		],
+		
+		"pre" -> "\n\n....\n" 	
 
 	};
 	
