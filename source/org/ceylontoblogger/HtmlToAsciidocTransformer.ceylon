@@ -64,6 +64,7 @@ class HtmlToAsciidocTransformer() {
 		"ul" -> "\n",	
 		
 		"li" -> [
+			// do not generate bullets for an empty <li/>
 			start -> ( (Node n)=> if(IterableNode(n).any((child)=>child.nodeName == "#text")) then "\n* " else "") 
 		],
 		"textarea" -> [
