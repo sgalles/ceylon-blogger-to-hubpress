@@ -6,10 +6,7 @@ import ceylon.language {
 }
 
 import org.ceylontoblogger {
-	Step {
-		start,
-		end
-	}
+	Step {start,end}
 }
 import org.w3c.dom {
 	Node
@@ -21,47 +18,59 @@ class HtmlToAsciidocTransformer() {
 	
 	StringBuilder sb = StringBuilder();
 	
+	String none = "";
 	
-	
-	Map<String, String?(Node,Step)> handlers = HashMap{
-		"html" -> ignore,
-		"head" -> ignore,
-		"meta" -> ignore,
-		"body" -> ignore,
+	Map<String, Null|String|String(Node)|[<Step-><String(Node)|String>>+]> handlers = HashMap{
+		"html" -> none,
+		"head" -> none,
+		"meta" -> none,
+		"body" -> none,
 		
-		"title" -> ((Node n, Step s)=> switch(s) 
-			case(start) "= ``n.nodeValue``" 
-			case(end) "\n\n"),
+		"title" -> [
+			start -> ( (Node n)=>"= ``n.nodeValue``"),
+			end -> "\n\n"
+		],
+			
+		"#text" -> [
+			start -> ( (Node n)=>"``n.nodeValue``" )
+		],	
+			
+		"br" -> [
+			start -> "\n\n"
+		],
+			
+		"i" -> "_",
+			
+		"span" -> [
+			start -> ( (Node n)=>if(exists style = MapNode(n).get("style")) then " " else nothing )
+		],
+		"a" ->  [
+			start -> ( (Node n) => let(href = MapNode(n).get("href") else nothing) "link:``href``[" ),
+			end -> "]"
+		],	
+		"u" -> null,
+		"ul" -> "\n",	
 		
-		"#text" -> ((Node n, Step s)
-			=>( if(s == start) then "``n.nodeValue``" else null)), 
-		
-		"br" -> ((Node n, Step s) 
-			=>( if(s == start) then " \n\n" else null)), 
-		
-		"i" -> ((Node n, Step s) => "_"),
-		
-		"span" -> ((Node n, Step s)
-			=>( if(s == start) then 
-					if(exists style = MapNode(n).get("style")) then " " else nothing
-				else null)
-			  ),
-			 
-		"a" ->	((Node n, Step s) => let(href = MapNode(n).get("href") else nothing) 
-				 	(switch(s) 
-				 		case(start) "link:``href``["
-				 		case(end) "]"
-			 		)
-			 	),
-			 	   
-		"u" -> ignore,
-			 	   
-		"ul" -> ((Node n, Step s) => "\n"),	 	   
-			 	   
-		"li" -> ((Node n, Step s) => switch(s) 
-					case(start) "* " 
-					case(end) "\n"
-				)
+		"li" -> [
+			start -> "* " ,
+			end -> "\n"
+		],
+		"textarea" -> [
+			start -> ( (Node n) {
+						if(exists clazz = MapNode(n).get("class")){
+							value syntaxIs = clazz.startsWith;
+							if(syntaxIs("xml")){
+								return "\n\n[source,xml]\n----\n";
+							}else{
+								throw Exception("Unknown textarea class : ``clazz``" );
+							}
+						}else{
+							throw Exception("textarea class does not have a class :``n.nodeValue``" );
+						}
+					}),
+			end -> "----\n"		
+		]
+
 	};
 	
 	string => sb.string;
@@ -69,8 +78,23 @@ class HtmlToAsciidocTransformer() {
 	shared void recursing([Node+] path, Step step){
 		value node = path.last;
 		if(exists handler = handlers.get(node.nodeName)){
-			if(exists s = handler(node, step)){
-				sb.append(s);
+			switch(handler)
+			case (is String) {
+				sb.append(handler);
+			}
+			case (is String(Node)) {
+				sb.append(handler(node));
+			}
+			case (is [<Step-><String(Node)|String>>+]) {
+				if(exists handlerForStep = HashMap{*handler}[step]){
+					switch(handlerForStep)
+					case (is String) {
+						sb.append(handlerForStep);
+					}
+					case (is String(Node)) {
+						sb.append(handlerForStep(node));
+					}
+				}	
 			}
 		}else{
 			throw Exception("Not handler for '``node.nodeName``'");
