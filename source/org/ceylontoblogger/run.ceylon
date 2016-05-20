@@ -1,9 +1,11 @@
+import ceylon.file {
+	parsePath,
+	Directory,
+	Path,
+	Nil
+}
 import ceylon.interop.java {
 	CeylonList
-}
-import ceylon.regex {
-	regex,
-	Regex
 }
 
 import org.jdom2 {
@@ -15,10 +17,8 @@ import org.jdom2 {
 import org.jdom2.input {
 	SAXBuilder
 }
-import org.w3c.dom {
 
-	Node
-}
+Path workDir = parsePath("work");
 
 String xmlSource = "blog-04-16-2016.xml";
 SAXBuilder jdomBuilder = SAXBuilder();
@@ -70,16 +70,22 @@ shared void run() {
 		}
 	);	
 	
-	assert(exists blog = blogArticles.getFromFirst(52));
-	blog.printTree();
-	
-	HtmlToAsciidocTransformer transformer = HtmlToAsciidocTransformer();
-	try {
-		blog.recurse(transformer.recursing);
-	}catch(e){
-		e.printStackTrace();
+	{AsciidocBlogArticle*} asciidocBlogs = blogArticles.map(htmlToAsciidocBlog);
+	for(asciidocBlog in asciidocBlogs.indexed){
+		if (is Directory dir = workDir.resource) {
+			value filePath = dir.childResource("``asciidocBlog.item.published``-``asciidocBlog.key``.adoc");
+			if (is Nil loc = filePath) {
+				value file = loc.createFile();
+				try (writer = file.Overwriter()) {
+					writer.write(asciidocBlog.item.asciidocContent);
+				}
+			}
+			else {
+				print("file already exists : ``filePath``");
+			}
+		}else{
+			throw Exception("``workDir.absolutePath`` does not exists");
+		}
 	}
-	print("##########################");
-	print(transformer);
 }
 

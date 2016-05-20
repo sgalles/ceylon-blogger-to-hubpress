@@ -128,5 +128,16 @@ class HtmlToAsciidocTransformer() {
 		}
 	}
 	
-	
 }
+
+AsciidocBlogArticle htmlToAsciidocBlog(HtmlBlogArticle htmlBlog){
+	
+	value transformer = HtmlToAsciidocTransformer();
+	htmlBlog.recurse(transformer.recursing);
+	return AsciidocBlogArticle{
+		asciidocContent = transformer.string;
+		title = htmlBlog.title;
+		published = htmlBlog.published;
+	};
+}
+
