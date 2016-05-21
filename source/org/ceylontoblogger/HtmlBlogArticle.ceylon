@@ -11,12 +11,12 @@ import org.w3c.dom {
 import org.w3c.tidy {
 	Tidy
 }
-class HtmlBlogArticle(shared String htmlContent, shared String title, shared String published) {
-	Tidy tidy = Tidy();
-	value writer = StringWriter();
-	shared Document dom = tidy.parseDOM(StringReader(htmlContent), writer);
+class HtmlBlogArticle(shared Document dom, shared String title, shared String published) {
+	//Tidy tidy = Tidy();
+	//value writer = StringWriter();
+	//shared Document dom = tidy.parseDOM(StringReader(htmlContent), writer);
 	
-	string => "BlogArticle:``title``:``published``\nhtml=``htmlContent``\ntidy=``writer``";
+	//string => "BlogArticle:``title``:``published``\nhtml=``htmlContent``\ntidy=``writer``";
 	
 	shared void recurse(void recursing([Node+] path, Step step)){
 		value root = dom.documentElement;
@@ -28,4 +28,21 @@ class HtmlBlogArticle(shared String htmlContent, shared String title, shared Str
 		});
 	
 	
+}
+
+class RawHtmlBlogArticle(shared String rawHtml, shared String title, shared String published) {
+	
+}
+
+HtmlBlogArticle rawHtmlToHtmlBlogPost(RawHtmlBlogArticle rawPost){
+	Tidy tidy = Tidy();
+	value writer = StringWriter();
+	try(value reader = StringReader(rawPost.rawHtml)){
+		Document dom = tidy.parseDOM(reader, writer);
+		return  HtmlBlogArticle {
+			dom = dom;
+			title = rawPost.title;
+			published = rawPost.published;
+		};
+	}
 }
